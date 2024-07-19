@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  mlflow-postgres:
+    image: postgres:13.3
+    ports:
+      - ${MLFLOW_POSTGRES_PORT}:5432
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${MLFLOW_POSTGRES_DB}
+      - POSTGRES_USER=${MLFLOW_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${MLFLOW_POSTGRES_PASSWORD}
+      - POSTGRES_HOST=${MLFLOW_POSTGRES_HOST}
+    networks:
+      - ml_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${MLFLOW_POSTGRES_USER} -d $${MLFLOW_POSTGRES_DB}"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+    restart: on-failure
+networks:
+  ml_network:
